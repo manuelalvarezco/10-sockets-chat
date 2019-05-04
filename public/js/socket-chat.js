@@ -4,53 +4,60 @@ var params = new URLSearchParams(window.location.search);
 
 if (!params.has('nombre') || !params.has('sala')) {
     window.location = 'index.html';
-    throw new Error('El nombre y la sala son necesarios');
+    throw new Error('El nombre y sala son necesarios');
 }
 
 var usuario = {
     nombre: params.get('nombre'),
     sala: params.get('sala')
-}
+};
 
-//on -> escuchar información
+
+
 socket.on('connect', function() {
-    console.log('Conectado con el servidor');
+    console.log('Conectado al servidor');
 
-    socket.emit('entrarChat', usuario, function(res) {
-        console.log('Usuarios conectados', res);
+    socket.emit('entrarChat', usuario, function(resp) {
+        renderizarUsuarios(resp);
+
+
     });
 
+});
+
+// escuchar
+socket.on('disconnect', function() {
+
+    console.log('Perdimos conexión con el servidor');
 
 });
 
-socket.on('disconect', function() {
-    console.log('Perdimos Conexion con el servidor');
-});
 
-socket.on('crearMensaje', function(mensaje) {
-    console.log('Servidor:', mensaje);
-})
-
-socket.on('crearMensaje', function(mensaje) {
-    console.log(mensaje);
-})
-
-//enviar información
+// Enviar información
 // socket.emit('crearMensaje', {
-//     usuario: 'Manuel',
-//     mensaje: 'Hola mundo'
-// }, function(res) {
-//     console.log(res)
-// })
+//     nombre: 'Fernando',
+//     mensaje: 'Hola Mundo'
+// }, function(resp) {
+//     console.log('respuesta server: ', resp);
+// });
 
-//Escuchar cambios de usuario
-// Cuando un usuario entra o sale del chat
+// Escuchar información
+socket.on('crearMensaje', function(mensaje) {
+    renderizarMensajes(mensaje, false);
+    scrollBottom();
 
+});
+
+// Escuchar cambios de usuarios
+// cuando un usuario entra o sale del chat
 socket.on('listaPersona', function(personas) {
     console.log(personas);
+    renderizarUsuarios(personas);
 });
 
-// Mensaje privado
+// Mensajes privados
 socket.on('mensajePrivado', function(mensaje) {
-    console.log('Mensaje privado', mensaje);
-})
+
+    console.log('Mensaje Privado:', mensaje);
+
+});
